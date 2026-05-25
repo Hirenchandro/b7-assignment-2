@@ -8,7 +8,6 @@ const auth = () => {
   return async (req: Request, res: Response, next: NextFunction) => {
     try {
       const token = req.headers.authorization;
-      // console.log("token here middleware:", token);
 
       if (!token) {
         sendResponse(res, {
@@ -23,17 +22,14 @@ const auth = () => {
         config.secret as string,
       ) as JwtPayload;
 
-      // console.log(decoded);
       const userData = await pool.query(
         `
       SELECT* FROM users WHERE email=$1
       `,
         [decoded.email],
       );
-      // console.log("user data here", userData);
 
       const user = userData.rows[0];
-      // console.log("user data here", user);
 
       if (userData.rows.length === 0) {
         sendResponse(res, {
@@ -44,10 +40,16 @@ const auth = () => {
       }
 
       req.user = decoded;
+      // console.log(req.user);
 
       next();
-    } catch (error) {
-      next(error);
+    } catch (error: any) {
+      return sendResponse(res, {
+        statusCode: 401,
+        success: false,
+        message: "invalid Token",
+        error: error.message,
+      });
     }
   };
 };

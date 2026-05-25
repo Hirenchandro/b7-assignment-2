@@ -5,7 +5,6 @@ import type { JwtPayload } from "jsonwebtoken";
 import type { TissueQuery } from "../../type";
 
 const createIssue = async (req: Request, res: Response) => {
-  // console.log("signup User", req.user);
   try {
     const result = await issueService.issueInsertIntoDB(
       req.body,
@@ -19,7 +18,6 @@ const createIssue = async (req: Request, res: Response) => {
       data: result.rows[0],
     });
   } catch (error: any) {
-    // console.log("Signup user error", error);
     sendResponse(res, {
       statusCode: 400,
       success: false,
@@ -31,7 +29,7 @@ const createIssue = async (req: Request, res: Response) => {
 //get all issues
 const getAllIssues = async (req: Request, res: Response) => {
   const query = req.query;
-  // console.log("gelall", );
+
   try {
     const result = await issueService.getAllIssuesFromDB(query as TissueQuery);
     sendResponse(res, {
@@ -54,11 +52,11 @@ const getAllIssues = async (req: Request, res: Response) => {
 
 const getSingleIssue = async (req: Request, res: Response) => {
   const { id } = req.params;
-  // console.log("get single issue:", id);
+
   try {
     const result = await issueService.getSingleIssueFromDB(id as string);
     sendResponse(res, {
-      statusCode: 201,
+      statusCode: 200,
       success: true,
       message: "Single Issue Retrived Successfully",
       data: result.data,
@@ -78,19 +76,15 @@ const getSingleIssue = async (req: Request, res: Response) => {
 const updateIssue = async (req: Request, res: Response) => {
   const { id } = req.params;
 
-  // console.log("issue id Here: ", id);.
   try {
     const user = req.user;
 
-    // console.log("update user here: ", user);
     const result = await issueService.updateIssueFromDB(
       req.body,
       id as string,
       user as any,
     );
 
-    console.log("update con REsult here:", result);
-    // console.log("issue controller: resutl:", result.rows[0]);
     if (result?.rowCount === 0) {
       sendResponse(res, {
         statusCode: 404,
@@ -116,8 +110,10 @@ const updateIssue = async (req: Request, res: Response) => {
 
 const deleteIssue = async (req: Request, res: Response) => {
   const { id } = req.params;
+  const user = req.user;
+
   try {
-    const result = await issueService.issueDeleteFromDB(id as string);
+    const result = await issueService.issueDeleteFromDB(id as string, user);
 
     if (result.rowCount === 0) {
       sendResponse(res, {

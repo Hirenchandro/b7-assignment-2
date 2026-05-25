@@ -3,7 +3,6 @@ import { authService } from "./auth.service";
 import { sendResponse } from "../../utility/sendResponse";
 
 const signupUser = async (req: Request, res: Response) => {
-  //   console.log("signup User", req.body);
   try {
     const result = await authService.signupIntoDB(req.body);
 
@@ -14,7 +13,6 @@ const signupUser = async (req: Request, res: Response) => {
       data: result.rows[0],
     });
   } catch (error: any) {
-    // console.log("Signup user error", error);
     sendResponse(res, {
       statusCode: 400,
       success: false,
@@ -25,7 +23,6 @@ const signupUser = async (req: Request, res: Response) => {
 };
 
 const loginUser = async (req: Request, res: Response) => {
-  // console.log(req.body);
   const result = await authService.loginIntoDB(req.body);
 
   try {

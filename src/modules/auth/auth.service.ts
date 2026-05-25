@@ -8,8 +8,6 @@ import config from "../../config";
 const signupIntoDB = async (payload: Iuser) => {
   const { name, email, password, role } = payload;
 
-  //   console.log(name, email, password);
-
   const hashPassword = await bcrypt.hash(password, 11);
 
   const result = await pool.query(
@@ -21,7 +19,6 @@ const signupIntoDB = async (payload: Iuser) => {
   );
   delete result.rows[0].password;
   return result;
-  //   console.log(result.rows[0]);
 };
 
 const loginIntoDB = async (payload: { email: string; password: string }) => {

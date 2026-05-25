@@ -4,21 +4,11 @@ import type { Iissue } from "./issue.interface";
 import type { JwtPayload } from "jsonwebtoken";
 import { sendResponse } from "../../utility/sendResponse";
 import type { TissueQuery } from "../../type";
+import { error } from "console";
 
 const issueInsertIntoDB = async (payload: Iissue, user: JwtPayload) => {
   const { title, description, type, status } = payload;
   const { id } = user;
-
-  // console.log("type here:", type);
-
-  // if (type !== "bug" && type !== "feature_request") {
-  //   throw new Error("Type not Exist");
-  // }
-
-  // console.log(id);
-  // const status = "open";
-
-  //   console.log(name, email, password);
 
   const result = await pool.query(
     `
@@ -29,7 +19,6 @@ const issueInsertIntoDB = async (payload: Iissue, user: JwtPayload) => {
   );
   delete result.rows[0].password;
   return result;
-  //   console.log(result.rows[0]);
 };
 
 //get all issues
@@ -67,7 +56,6 @@ const getAllIssuesFromDB = async (params: TissueQuery) => {
 
   const issue = [];
   for (const data of result.rows) {
-    // console.log("data here", data);
     const userResult = await pool.query(
       `
       SELECT id, name, role FROM users WHERE id=$1
@@ -75,7 +63,6 @@ const getAllIssuesFromDB = async (params: TissueQuery) => {
       [data.reporter_id],
     );
     const reporter = userResult.rows[0];
-    // console.log(reporter)
 
     const allData = { ...data, reporter: reporter };
     delete allData.reporter_id;
@@ -114,9 +101,6 @@ const updateIssueFromDB = async (payload: Iissue, id: string, user: any) => {
   const { title, description, type } = payload;
 
   console.log("user role", user.role);
-  const maintainer = user.role;
-  // console.log("maintainer", maintainer);
-  // console.log("user DB:", user);
 
   if (user.role === "maintainer") {
     const result = await pool.query(
@@ -130,7 +114,6 @@ const updateIssueFromDB = async (payload: Iissue, id: string, user: any) => {
       [title, description, type, id],
     );
 
-    // console.log("maintainer result", result);
     return result;
   }
 
@@ -162,20 +145,24 @@ const updateIssueFromDB = async (payload: Iissue, id: string, user: any) => {
       id,
     ]);
 
-    // console.log("Result here", result);
     return result;
   }
 };
 
-const issueDeleteFromDB = async (id: string) => {
-  const result = await pool.query(
-    `
+const issueDeleteFromDB = async (id: string, user: any) => {
+  console.log("deleteDB user role here", user.role);
+  if (user.role === "maintainer") {
+    const result = await pool.query(
+      `
     DELETE FROM issues WHERE id=$1
     
     `,
-    [id],
-  );
-  return result;
+      [id],
+    );
+    return result;
+  } else {
+    throw new Error("Sorry!! You have no delete access!!");
+  }
 };
 
 export const issueService = {

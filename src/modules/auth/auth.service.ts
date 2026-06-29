@@ -43,7 +43,7 @@ const loginIntoDB = async (payload: { email: string; password: string }) => {
     email: user.email,
   };
 
-  const Token = jwt.sign(jwtpayload, config.secret as string, {
+  const token = jwt.sign(jwtpayload, config.secret as string, {
     expiresIn: "1d",
   });
 
@@ -51,7 +51,7 @@ const loginIntoDB = async (payload: { email: string; password: string }) => {
     throw new Error("Invalid Password");
   }
   delete user.password;
-  return { Token, user };
+  return { token, user };
 };
 
 export const authService = {
